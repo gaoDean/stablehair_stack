@@ -59,7 +59,7 @@
 
 		// Progress simulation (11.5s est)
 		const startTime = Date.now();
-		const duration = 11500;
+		const duration = 13500;
 		const progressInterval = setInterval(() => {
 			const elapsed = Date.now() - startTime;
 			let p = (elapsed / duration) * 98;
