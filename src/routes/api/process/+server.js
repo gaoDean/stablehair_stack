@@ -1,5 +1,6 @@
 import { STABLEHAIR_API_KEY, STABLEHAIR_API_URL } from '$env/static/private';
 import { error } from '@sveltejs/kit';
+import sharp from 'sharp';
 
 /** @type {import('./$types').RequestHandler} */
 export const POST = async ({ request }) => {
@@ -11,12 +12,46 @@ export const POST = async ({ request }) => {
 	}
 
 	try {
+		const newFormData = new FormData();
+
+		// Helper function to convert image to webp
+		const convertToWebP = async (file) => {
+			if (file && file instanceof File) {
+				const buffer = await file.arrayBuffer();
+				const convertedBuffer = await sharp(Buffer.from(buffer))
+					.webp({ quality: 60 })
+					.toBuffer();
+				return new Blob([convertedBuffer], { type: 'image/webp' });
+			}
+			return file;
+		};
+
+		const targetImage = formData.get('target_image');
+		const referenceImage = formData.get('reference_image');
+
+		if (targetImage instanceof File) {
+			const convertedTarget = await convertToWebP(targetImage);
+			newFormData.append('target_image', convertedTarget, 'target.webp');
+		}
+
+		if (referenceImage instanceof File) {
+			const convertedReference = await convertToWebP(referenceImage);
+			newFormData.append('reference_image', convertedReference, 'reference.webp');
+		}
+
+		// Append other fields if any (though currently only images are expected/validated)
+		for (const [key, value] of formData.entries()) {
+			if (key !== 'target_image' && key !== 'reference_image') {
+				newFormData.append(key, value);
+			}
+		}
+
 		const response = await fetch(`${STABLEHAIR_API_URL}/process`, {
 			method: 'POST',
 			headers: {
 				'X-API-Key': STABLEHAIR_API_KEY
 			},
-			body: formData
+			body: newFormData
 		});
 
 		if (!response.ok) {

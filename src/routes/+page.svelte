@@ -9,8 +9,8 @@
 
 	let targetFiles;
 	let referenceFiles;
-	
-	let showAdvanced = false;
+
+	let useAdvanced = false;
 
 	// Default parameters for advanced configuration
 	const params = {
@@ -71,12 +71,14 @@
 		formData.append('target_image', targetFiles[0]);
 		formData.append('reference_image', referenceFiles[0]);
 
-		// Append optional parameters
-		for (const [key, value] of Object.entries(params)) {
-			if (typeof value === 'number') {
-				formData.append(key, value.toString());
-			} else {
-				formData.append(key, value);
+		if (useAdvanced) {
+			// Append optional parameters
+			for (const [key, value] of Object.entries(params)) {
+				if (typeof value === 'number') {
+					formData.append(key, value.toString());
+				} else {
+					formData.append(key, value);
+				}
 			}
 		}
 
@@ -163,13 +165,13 @@
 						<button
 							type="button"
 							class="mb-4 flex w-full items-center justify-between text-xs font-bold uppercase hover:text-gray-600"
-							on:click={() => (showAdvanced = !showAdvanced)}
+							on:click={() => (useAdvanced = !useAdvanced)}
 						>
 							<span>[03] Advanced Configuration</span>
-							<span>{showAdvanced ? '[-]' : '[+]'}</span>
+							<span>{useAdvanced ? '[-]' : '[+]'}</span>
 						</button>
 
-						{#if showAdvanced}
+						{#if useAdvanced}
 							<div class="space-y-6">
 								<!-- REMOVER SETTINGS -->
 								<div class="space-y-3">
