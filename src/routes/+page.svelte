@@ -7,6 +7,7 @@
 
 	let processing = false;
 	let progress = 0;
+	let jobStatus = ''; // 'queued' | 'processing' | 'completed' | ''
 	let resultImage = null;
 	let error = null;
 	let systemStatus = 'CHECKING...';
@@ -56,6 +57,7 @@
 
 		processing = true;
 		progress = 0;
+		jobStatus = 'queued';
 		error = null;
 		resultImage = null;
 
@@ -98,6 +100,7 @@
 					if (!statusRes.ok) throw new Error(`STATUS_ERR: ${statusRes.status}`);
 					
 					const statusData = await statusRes.json();
+					jobStatus = statusData.status;
 
 					if (statusData.status === 'completed') {
 						// Step 3: Get Result
@@ -109,13 +112,15 @@
 						resultImage = URL.createObjectURL(blob);
 						isPolling = false;
 						processing = false;
-					} else if (statusData.status === 'processing') {
-						progress = 75; // Processing state
-						setTimeout(poll, pollInterval);
+						jobStatus = 'completed';
+					                    } else if (statusData.status === 'processing') {
+											// Simulate progress or set to a specific value
+											progress = Math.min(progress + 8, 99); // Increment by 8, max 99 to ensure 'completed' state takes it to 100
+											setTimeout(poll, pollInterval);
+					
 					} else if (statusData.status === 'queued') {
-						// Rough indication of queue depth
-						// If queue_position is available, we could use it, but for now fixed 'queued' state
-						progress = 25; 
+						// Keep progress at 0 for queued state
+						progress = 0; 
 						setTimeout(poll, pollInterval);
 					} else {
 						// Unknown status, keep polling
@@ -150,7 +155,7 @@
 			on:submit={handleSubmit}
 		/>
 
-		<OutputDisplay {resultImage} {processing} {progress} />
+		<OutputDisplay {resultImage} {processing} {progress} {jobStatus} />
 	</main>
 
 	<Footer {systemStatus} />

@@ -2,6 +2,7 @@
 	export let resultImage;
 	export let processing;
 	export let progress;
+	export let jobStatus;
 </script>
 
 <section class="flex flex-col gap-8">
