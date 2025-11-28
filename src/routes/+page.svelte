@@ -59,26 +59,11 @@
 		error = null;
 		resultImage = null;
 
-		// Progress simulation (11.5s est)
-		const startTime = Date.now();
-		const duration = 13500;
-		const progressInterval = setInterval(() => {
-			const elapsed = Date.now() - startTime;
-			let p = (elapsed / duration) * 98;
-			if (p > 98) p = 98;
-			progress = p;
-		}, 100);
-
 		const formData = new FormData();
 		formData.append('target_image', targetFiles[0]);
 		formData.append('reference_image', referenceFiles[0]);
 
 		// Append optional parameters
-		// Note: We always append them now, assuming defaults are fine.
-		// The original code only appended if useAdvanced was true, but here params are always present.
-		// If we want to strictly follow original logic we would need to know if advanced was "used",
-		// but usually sending defaults is fine.
-		// However, to be safe, I will just append them.
 		for (const [key, value] of Object.entries(params)) {
 			if (typeof value === 'number') {
 				formData.append(key, value.toString());
@@ -88,6 +73,7 @@
 		}
 
 		try {
+			// Step 1: Submit Job
 			const response = await fetch('/api/process', {
 				method: 'POST',
 				body: formData
@@ -98,13 +84,54 @@
 				throw new Error(errText || `SERVER_ERR: ${response.status}`);
 			}
 
-			const blob = await response.blob();
-			resultImage = URL.createObjectURL(blob);
+			const { job_id } = await response.json();
+			
+			// Step 2: Poll Status
+			const pollInterval = 1000;
+			let isPolling = true;
+
+			const poll = async () => {
+				if (!isPolling) return;
+
+				try {
+					const statusRes = await fetch(`/api/status/${job_id}`);
+					if (!statusRes.ok) throw new Error(`STATUS_ERR: ${statusRes.status}`);
+					
+					const statusData = await statusRes.json();
+
+					if (statusData.status === 'completed') {
+						// Step 3: Get Result
+						progress = 100;
+						const resultRes = await fetch(`/api/result/${job_id}`);
+						if (!resultRes.ok) throw new Error(`RESULT_ERR: ${resultRes.status}`);
+						
+						const blob = await resultRes.blob();
+						resultImage = URL.createObjectURL(blob);
+						isPolling = false;
+						processing = false;
+					} else if (statusData.status === 'processing') {
+						progress = 75; // Processing state
+						setTimeout(poll, pollInterval);
+					} else if (statusData.status === 'queued') {
+						// Rough indication of queue depth
+						// If queue_position is available, we could use it, but for now fixed 'queued' state
+						progress = 25; 
+						setTimeout(poll, pollInterval);
+					} else {
+						// Unknown status, keep polling
+						setTimeout(poll, pollInterval);
+					}
+				} catch (e) {
+					throw e; // Pass to outer catch
+				}
+			};
+
+			// Start polling
+			poll();
+
 		} catch (e) {
 			console.error(e);
 			error = e.message;
-		} finally {
-			clearInterval(progressInterval);
 			processing = false;
 		}
 	}

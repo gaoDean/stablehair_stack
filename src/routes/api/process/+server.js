@@ -61,12 +61,11 @@ export const POST = async ({ request }) => {
 			throw error(response.status, `Upstream API error: ${text}`);
 		}
 
-		// The API returns the image directly
-		const blob = await response.blob();
+		const data = await response.json();
 
-		return new Response(blob, {
+		return new Response(JSON.stringify(data), {
 			headers: {
-				'Content-Type': 'image/png'
+				'Content-Type': 'application/json'
 			}
 		});
 	} catch (err) {
