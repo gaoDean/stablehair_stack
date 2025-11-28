@@ -11,13 +11,13 @@
 	</div>
 
 	<div
-		class="relative flex min-h-[400px] flex-grow flex-col items-center justify-center overflow-hidden border border-black bg-gray-50"
+		class="relative mx-auto flex aspect-square w-full max-w-md flex-col items-center justify-center overflow-hidden border border-black bg-gray-50"
 	>
 		{#if resultImage}
 			<img
 				src={resultImage}
 				alt="Processed Result"
-				class="z-10 max-h-[600px] max-w-full object-contain"
+				class="z-10 h-full w-full object-contain"
 			/>
 			<a
 				href={resultImage}

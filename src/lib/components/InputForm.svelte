@@ -1,6 +1,7 @@
 <script>
 	import AdvancedConfig from './AdvancedConfig.svelte';
 	import { createEventDispatcher } from 'svelte';
+	import { Eye, X } from 'lucide-svelte';
 
 	export let targetFiles;
 	export let referenceFiles;
@@ -10,6 +11,24 @@
 
 	let useAdvanced = false;
 	const dispatch = createEventDispatcher();
+
+	let targetPreview = null;
+	let referencePreview = null;
+	let activePreview = null;
+
+	$: if (targetFiles && targetFiles.length > 0) {
+		if (targetPreview) URL.revokeObjectURL(targetPreview);
+		targetPreview = URL.createObjectURL(targetFiles[0]);
+	} else {
+		targetPreview = null;
+	}
+
+	$: if (referenceFiles && referenceFiles.length > 0) {
+		if (referencePreview) URL.revokeObjectURL(referencePreview);
+		referencePreview = URL.createObjectURL(referenceFiles[0]);
+	} else {
+		referencePreview = null;
+	}
 
 	function handleSubmit() {
 		dispatch('submit');
@@ -32,16 +51,28 @@
 				>
 					[01] Target Face
 				</label>
-				<input
-					type="file"
-					id="target"
-					accept="image/*"
-					bind:files={targetFiles}
-					required
-					class="block w-full cursor-pointer border border-black p-3 text-sm file:mr-4 file:border
-                                   file:border-black file:bg-black file:px-2 file:py-1 file:text-xs
-                                   file:text-white hover:file:bg-white hover:file:text-black focus:outline-none"
-				/>
+				<div class="flex gap-2">
+					<input
+						type="file"
+						id="target"
+						accept="image/*"
+						bind:files={targetFiles}
+						required
+						class="block w-full flex-1 cursor-pointer border border-black p-3 text-sm file:mr-4 file:border
+	                                   file:border-black file:bg-black file:px-2 file:py-1 file:text-xs
+	                                   file:text-white hover:file:bg-white hover:file:text-black focus:outline-none"
+					/>
+					{#if targetPreview}
+						<button
+							type="button"
+							on:click={() => (activePreview = targetPreview)}
+							class="flex items-center justify-center border border-black p-3 transition-colors hover:bg-black hover:text-white"
+							title="View Preview"
+						>
+							<Eye size={20} />
+						</button>
+					{/if}
+				</div>
 			</div>
 
 			<!-- REFERENCE IMAGE -->
@@ -52,16 +83,28 @@
 				>
 					[02] Reference Style
 				</label>
-				<input
-					type="file"
-					id="reference"
-					accept="image/*"
-					bind:files={referenceFiles}
-					required
-					class="block w-full cursor-pointer border border-black p-3 text-sm file:mr-4 file:border
-                                   file:border-black file:bg-black file:px-2 file:py-1 file:text-xs
-                                   file:text-white hover:file:bg-white hover:file:text-black focus:outline-none"
-				/>
+				<div class="flex gap-2">
+					<input
+						type="file"
+						id="reference"
+						accept="image/*"
+						bind:files={referenceFiles}
+						required
+						class="block w-full flex-1 cursor-pointer border border-black p-3 text-sm file:mr-4 file:border
+	                                   file:border-black file:bg-black file:px-2 file:py-1 file:text-xs
+	                                   file:text-white hover:file:bg-white hover:file:text-black focus:outline-none"
+					/>
+					{#if referencePreview}
+						<button
+							type="button"
+							on:click={() => (activePreview = referencePreview)}
+							class="flex items-center justify-center border border-black p-3 transition-colors hover:bg-black hover:text-white"
+							title="View Preview"
+						>
+							<Eye size={20} />
+						</button>
+					{/if}
+				</div>
 			</div>
 
 			<!-- OPTIONAL PARAMETERS -->
@@ -103,6 +146,29 @@
 		<div class="mt-4 border border-red-600 p-4 text-xs text-red-600">
 			<p class="font-bold">ERROR_LOG:</p>
 			<p>{error}</p>
+		</div>
+	{/if}
+
+	{#if activePreview}
+		<!-- svelte-ignore a11y-click-events-have-key-events -->
+		<!-- svelte-ignore a11y-no-static-element-interactions -->
+		<div
+			class="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+			on:click={() => (activePreview = null)}
+		>
+			<div class="relative max-h-[90vh] max-w-[90vw]" on:click|stopPropagation>
+				<button
+					class="absolute -top-10 right-0 text-white hover:text-gray-300"
+					on:click={() => (activePreview = null)}
+				>
+					<X size={24} />
+				</button>
+				<img
+					src={activePreview}
+					alt="Preview"
+					class="max-h-[80vh] w-auto border border-white object-contain shadow-2xl"
+				/>
+			</div>
 		</div>
 	{/if}
 </section>
