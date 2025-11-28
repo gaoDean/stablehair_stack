@@ -1,9 +1,44 @@
 <script>
+	import { onDestroy } from 'svelte';
+
 	export let resultImage;
 	export let processing;
 	export let progress;
 	export let jobStatus;
 	export let queuePosition = null;
+
+	let estimatedTime = 0;
+	let lastQueuePosition = null;
+	let interval;
+
+	$: if (queuePosition !== null && queuePosition !== lastQueuePosition) {
+		estimatedTime = queuePosition * 13;
+		lastQueuePosition = queuePosition;
+	}
+
+	function startTimer() {
+		clearInterval(interval);
+		interval = setInterval(() => {
+			if (estimatedTime > 0) {
+				estimatedTime = Math.max(0, estimatedTime - 0.1);
+			}
+		}, 100);
+	}
+
+	$: if (jobStatus === 'queued') {
+		// Ensure timer is running if we are queued
+		if (!interval) startTimer();
+	} else {
+		// Stop timer if not queued
+		if (interval) {
+			clearInterval(interval);
+			interval = null;
+		}
+	}
+
+	onDestroy(() => {
+		if (interval) clearInterval(interval);
+	});
 </script>
 
 <section class="flex flex-col gap-8">
@@ -39,7 +74,7 @@
 				<p class="animate-pulse text-xs">
 					{#if jobStatus === 'queued'}
 						QUEUED
-						{#if queuePosition !== null}(POSITION: {queuePosition}) {/if}
+						{#if queuePosition !== null} (est. {estimatedTime.toFixed(1)}s){/if}
 					{:else}
 						COMPUTING_TRANSFER... {Math.floor(progress)}%
 					{/if}
