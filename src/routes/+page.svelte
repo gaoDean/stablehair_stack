@@ -20,9 +20,9 @@
 		remover_strength: 0.8,
 		remover_cfg: 2.0,
 		transfer_steps: 25,
-		transfer_cfg: 1.1,
+		transfer_cfg: 1.5,
 		transfer_control_strength: 1.0,
-		transfer_adapter_strength: 0.9
+		transfer_adapter_strength: 1
 	};
 
 	onMount(async () => {

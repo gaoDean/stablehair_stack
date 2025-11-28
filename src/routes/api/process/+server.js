@@ -14,11 +14,12 @@ export const POST = async ({ request }) => {
 	try {
 		const newFormData = new FormData();
 
-		// Helper function to convert image to webp
+		// Helper function to convert image to webp, ensuring correct EXIF orientation
 		const convertToWebP = async (file) => {
 			if (file && file instanceof File) {
 				const buffer = await file.arrayBuffer();
 				const convertedBuffer = await sharp(Buffer.from(buffer))
+					.rotate() // Auto-orient based on EXIF data
 					.webp({ quality: 60 })
 					.toBuffer();
 				return new Blob([convertedBuffer], { type: 'image/webp' });
