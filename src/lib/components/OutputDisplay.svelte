@@ -3,6 +3,7 @@
 	export let processing;
 	export let progress;
 	export let jobStatus;
+	export let queuePosition = null;
 </script>
 
 <section class="flex flex-col gap-8">
@@ -35,7 +36,14 @@
 						style="width: {progress}%"
 					></div>
 				</div>
-				<p class="animate-pulse text-xs">COMPUTING_TRANSFER... {Math.floor(progress)}%</p>
+				<p class="animate-pulse text-xs">
+					{#if jobStatus === 'queued'}
+						QUEUED
+						{#if queuePosition !== null}(POSITION: {queuePosition}) {/if}
+					{:else}
+						COMPUTING_TRANSFER... {Math.floor(progress)}%
+					{/if}
+				</p>
 			</div>
 		{:else}
 			<div class="text-center text-gray-400">

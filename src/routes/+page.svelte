@@ -8,6 +8,7 @@
 	let processing = false;
 	let progress = 0;
 	let jobStatus = ''; // 'queued' | 'processing' | 'completed' | ''
+	let queuePosition = null;
 	let resultImage = null;
 	let error = null;
 	let systemStatus = 'CHECKING...';
@@ -58,6 +59,7 @@
 		processing = true;
 		progress = 0;
 		jobStatus = 'queued';
+		queuePosition = null; // Reset queue position on new submission
 		error = null;
 		resultImage = null;
 
@@ -101,6 +103,7 @@
 					
 					const statusData = await statusRes.json();
 					jobStatus = statusData.status;
+					queuePosition = statusData.queue_position || null;
 
 					if (statusData.status === 'completed') {
 						// Step 3: Get Result
@@ -113,11 +116,10 @@
 						isPolling = false;
 						processing = false;
 						jobStatus = 'completed';
-					                    } else if (statusData.status === 'processing') {
-											// Simulate progress or set to a specific value
-											progress = Math.min(progress + 8, 99); // Increment by 8, max 99 to ensure 'completed' state takes it to 100
-											setTimeout(poll, pollInterval);
-					
+					} else if (statusData.status === 'processing') {
+						// Simulate progress or set to a specific value
+						progress = Math.min(progress + 8, 99); // Increment by 8, max 99 to ensure 'completed' state takes it to 100
+						setTimeout(poll, pollInterval);
 					} else if (statusData.status === 'queued') {
 						// Keep progress at 0 for queued state
 						progress = 0; 
@@ -155,8 +157,9 @@
 			on:submit={handleSubmit}
 		/>
 
-		<OutputDisplay {resultImage} {processing} {progress} {jobStatus} />
+		<OutputDisplay {resultImage} {processing} {progress} {jobStatus} {queuePosition} />
 	</main>
 
 	<Footer {systemStatus} />
 </div>
+
