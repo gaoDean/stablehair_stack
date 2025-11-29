@@ -51,11 +51,7 @@
 		class="relative mx-auto flex aspect-square w-full max-w-md flex-col items-center justify-center overflow-hidden border border-black bg-gray-50"
 	>
 		{#if resultImage}
-			<img
-				src={resultImage}
-				alt="Processed Result"
-				class="z-10 h-full w-full object-contain"
-			/>
+			<img src={resultImage} alt="Processed Result" class="z-10 h-full w-full object-contain" />
 			<a
 				href={resultImage}
 				download="stablehair_output.png"
@@ -74,7 +70,8 @@
 				<p class="animate-pulse text-xs">
 					{#if jobStatus === 'queued'}
 						QUEUED
-						{#if queuePosition !== null} (est. {estimatedTime.toFixed(1)}s){/if}
+						{#if queuePosition !== null}
+							(est. {estimatedTime.toFixed(1)}s){/if}
 					{:else}
 						COMPUTING_TRANSFER... {Math.floor(progress)}%
 					{/if}

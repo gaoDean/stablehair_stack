@@ -89,7 +89,7 @@
 			}
 
 			const { job_id } = await response.json();
-			
+
 			// Step 2: Poll Status
 			const pollInterval = 1000;
 			let isPolling = true;
@@ -100,7 +100,7 @@
 				try {
 					const statusRes = await fetch(`/api/status/${job_id}`);
 					if (!statusRes.ok) throw new Error(`STATUS_ERR: ${statusRes.status}`);
-					
+
 					const statusData = await statusRes.json();
 					jobStatus = statusData.status;
 					queuePosition = statusData.queue_position || null;
@@ -110,7 +110,7 @@
 						progress = 100;
 						const resultRes = await fetch(`/api/result/${job_id}`);
 						if (!resultRes.ok) throw new Error(`RESULT_ERR: ${resultRes.status}`);
-						
+
 						const blob = await resultRes.blob();
 						resultImage = URL.createObjectURL(blob);
 						isPolling = false;
@@ -118,11 +118,11 @@
 						jobStatus = 'completed';
 					} else if (statusData.status === 'processing') {
 						// Simulate progress or set to a specific value
-						progress = Math.min(progress + 8, 99); // Increment by 8, max 99 to ensure 'completed' state takes it to 100
+						progress = Math.min(progress + 10, 99); // Increment by 8, max 99 to ensure 'completed' state takes it to 100
 						setTimeout(poll, pollInterval);
 					} else if (statusData.status === 'queued') {
 						// Keep progress at 0 for queued state
-						progress = 0; 
+						progress = 0;
 						setTimeout(poll, pollInterval);
 					} else {
 						// Unknown status, keep polling
@@ -135,7 +135,6 @@
 
 			// Start polling
 			poll();
-
 		} catch (e) {
 			console.error(e);
 			error = e.message;
@@ -162,4 +161,3 @@
 
 	<Footer {systemStatus} />
 </div>
-

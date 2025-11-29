@@ -1,5 +1,6 @@
 <script>
 	import AdvancedConfig from './AdvancedConfig.svelte';
+	import FileDropZone from './FileDropZone.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import { Eye, X } from 'lucide-svelte';
 
@@ -45,23 +46,11 @@
 		<div class="space-y-6">
 			<!-- TARGET IMAGE -->
 			<div class="group">
-				<label
-					for="target"
-					class="mb-2 block text-xs font-bold uppercase group-hover:underline"
-				>
+				<label for="target" class="mb-2 block text-xs font-bold uppercase group-hover:underline">
 					[01] Target Face
 				</label>
 				<div class="flex gap-2">
-					<input
-						type="file"
-						id="target"
-						accept="image/*"
-						bind:files={targetFiles}
-						required
-						class="block w-full flex-1 cursor-pointer border border-black p-3 text-sm file:mr-4 file:border
-	                                   file:border-black file:bg-black file:px-2 file:py-1 file:text-xs
-	                                   file:text-white hover:file:bg-white hover:file:text-black focus:outline-none"
-					/>
+					<FileDropZone id="target" accept="image/*" bind:files={targetFiles} required={true} />
 					{#if targetPreview}
 						<button
 							type="button"
@@ -77,22 +66,15 @@
 
 			<!-- REFERENCE IMAGE -->
 			<div class="group">
-				<label
-					for="reference"
-					class="mb-2 block text-xs font-bold uppercase group-hover:underline"
-				>
+				<label for="reference" class="mb-2 block text-xs font-bold uppercase group-hover:underline">
 					[02] Reference Style
 				</label>
 				<div class="flex gap-2">
-					<input
-						type="file"
+					<FileDropZone
 						id="reference"
 						accept="image/*"
 						bind:files={referenceFiles}
-						required
-						class="block w-full flex-1 cursor-pointer border border-black p-3 text-sm file:mr-4 file:border
-	                                   file:border-black file:bg-black file:px-2 file:py-1 file:text-xs
-	                                   file:text-white hover:file:bg-white hover:file:text-black focus:outline-none"
+						required={true}
 					/>
 					{#if referencePreview}
 						<button

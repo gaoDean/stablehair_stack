@@ -20,7 +20,7 @@ export const POST = async ({ request }) => {
 				const buffer = await file.arrayBuffer();
 				const convertedBuffer = await sharp(Buffer.from(buffer))
 					.rotate() // Auto-orient based on EXIF data
-					.webp({ quality: 60 })
+					.webp({ quality: 100 })
 					.toBuffer();
 				return new Blob([convertedBuffer], { type: 'image/webp' });
 			}
